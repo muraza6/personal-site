@@ -1,0 +1,46 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "Master.cshtml";
+    var pageTitle = Model.HasValue("pageTitle") ? Model.Value<string>("pageTitle") : Model.Name;
+    var pageDescription = Model.HasValue("pageDescription") ? Model.Value<string>("pageDescription") : "";
+}
+
+@* ===== PAGE HEADER ===== *@
+<section class="page-hero">
+    <div class="container">
+        <h1 class="page-title">@pageTitle</h1>
+        @if (!string.IsNullOrEmpty(pageDescription))
+        {
+            <p class="page-description">@pageDescription</p>
+        }
+    </div>
+</section>
+
+@* ===== BLOG LISTING ===== *@
+<section class="blog-listing">
+    <div class="container">
+        @{
+            var posts = Model.Children?
+                .Where(x => x.ContentType.Alias == "blogPost" && x.IsVisible())
+                .OrderByDescending(x => x.HasValue("publicationDate") ? x.Value<DateTime>("publicationDate") : x.CreateDate)
+                .ToList();
+        }
+
+        @if (posts != null && posts.Any())
+        {
+            <div class="cards-grid">
+                @foreach (var post in posts)
+                {
+                    @await Html.PartialAsync("BlogPostCard", post)
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <p class="empty-text">No posts yet. Create your first one in the Umbraco backoffice!</p>
+            </div>
+        }
+    </div>
+</section>

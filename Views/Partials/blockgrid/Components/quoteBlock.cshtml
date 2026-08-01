@@ -1,0 +1,17 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@{
+    var content = Model.Content;
+    var quoteText = content.HasValue("quoteText") ? content.Value<string>("quoteText") : "";
+    var attribution = content.HasValue("attribution") ? content.Value<string>("attribution") : "";
+}
+
+@if (!string.IsNullOrEmpty(quoteText))
+{
+    <blockquote class="block-quote">
+        <p class="quote-text">@quoteText</p>
+        @if (!string.IsNullOrEmpty(attribution))
+        {
+            <cite class="quote-attribution">@attribution</cite>
+        }
+    </blockquote>
+}

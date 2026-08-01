@@ -1,0 +1,72 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models.Blocks
+@{
+    Layout = "Master.cshtml";
+    var postTitle = Model.HasValue("postTitle") ? Model.Value<string>("postTitle") : Model.Name;
+    var publicationDate = Model.HasValue("publicationDate") ? Model.Value<DateTime>("publicationDate") : Model.CreateDate;
+    var author = Model.HasValue("author") ? Model.Value<string>("author") : "";
+    var tags = Model.HasValue("tags") ? Model.Value<IEnumerable<string>>("tags") : null;
+}
+
+@* ===== POST HEADER ===== *@
+<article>
+    <header class="post-header">
+        <div class="container-narrow">
+            <div class="post-meta">
+                <time datetime="@publicationDate.ToString("yyyy-MM-dd")">
+                    @publicationDate.ToString("MMMM dd, yyyy")
+                </time>
+                @if (!string.IsNullOrEmpty(author))
+                {
+                    <span class="meta-divider"></span>
+                    <span>@author</span>
+                }
+                @if (Model.Parent != null)
+                {
+                    <span class="meta-divider"></span>
+                    <a href="@Model.Parent.Url()">@Model.Parent.Name</a>
+                }
+            </div>
+            <h1 class="post-title">@postTitle</h1>
+
+            @if (tags != null && tags.Any())
+            {
+                <div class="post-tags">
+                    @foreach (var tag in tags)
+                    {
+                        <span class="post-tag">@tag</span>
+                    }
+                </div>
+            }
+        </div>
+    </header>
+
+    @* ===== BANNER IMAGE ===== *@
+    @if (Model.HasValue("previewImage"))
+    {
+        var previewImg = Model.Value<IPublishedContent>("previewImage");
+        if (previewImg != null)
+        {
+            var previewUrl = previewImg.Url();
+            <div class="container-narrow">
+                <div class="post-banner">
+                    <img src="@previewUrl" alt="@postTitle" />
+                </div>
+            </div>
+        }
+    }
+
+    @* ===== POST CONTENT (Block Grid) ===== *@
+    @if (Model.HasValue("postContent"))
+    {
+        var blockGridValue = Model.Value<BlockGridModel>("postContent");
+        if (blockGridValue != null)
+        {
+            <section class="block-content">
+                <div class="container-narrow">
+                    @await Html.GetBlockGridHtmlAsync(blockGridValue)
+                </div>
+            </section>
+        }
+    }
+</article>

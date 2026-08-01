@@ -1,0 +1,57 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Extensions
+@{
+    var post = Model;
+    var postTitle = post.HasValue("postTitle") ? post.Value<string>("postTitle") : post.Name;
+    var publicationDate = post.HasValue("publicationDate") ? post.Value<DateTime>("publicationDate") : post.CreateDate;
+    var excerpt = post.HasValue("excerpt") ? post.Value<string>("excerpt") : "";
+    var author = post.HasValue("author") ? post.Value<string>("author") : "";
+    var tags = post.HasValue("tags") ? post.Value<IEnumerable<string>>("tags") : null;
+}
+
+<a href="@post.Url()" class="post-card" id="post-card-@post.Id">
+    @* Preview Image *@
+    <div class="card-image">
+        @if (post.HasValue("previewImage"))
+        {
+            var previewImg = post.Value<IPublishedContent>("previewImage");
+            if (previewImg != null)
+            {
+                <img src="@previewImg.Url()"
+                     alt="@postTitle"
+                     loading="lazy" />
+            }
+        }
+        @if (tags != null && tags.Any())
+        {
+            <span class="card-tag">@tags.First()</span>
+        }
+    </div>
+
+    @* Card Body *@
+    <div class="card-body">
+        <div class="card-meta">
+            <time datetime="@publicationDate.ToString("yyyy-MM-dd")">
+                @publicationDate.ToString("MMM dd, yyyy")
+            </time>
+            @if (!string.IsNullOrEmpty(author))
+            {
+                <span class="meta-divider"></span>
+                <span>@author</span>
+            }
+        </div>
+
+        <h3 class="card-title">@postTitle</h3>
+
+        @if (!string.IsNullOrEmpty(excerpt))
+        {
+            <p class="card-excerpt">@excerpt</p>
+        }
+
+        <div class="card-footer">
+            <span class="read-more">
+                Read more <span class="arrow">→</span>
+            </span>
+        </div>
+    </div>
+</a>

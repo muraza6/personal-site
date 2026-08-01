@@ -1,0 +1,24 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Core.Models.PublishedContent
+@{
+    var content = Model.Content;
+    var altText = content.HasValue("altText") ? content.Value<string>("altText") : "";
+    var caption = content.HasValue("caption") ? content.Value<string>("caption") : "";
+}
+
+<figure class="block-image">
+    @if (content.HasValue("image"))
+    {
+        var image = content.Value<IPublishedContent>("image");
+        if (image != null)
+        {
+            <img src="@image.Url()"
+                 alt="@(string.IsNullOrEmpty(altText) ? image.Name : altText)"
+                 loading="lazy" />
+        }
+    }
+    @if (!string.IsNullOrEmpty(caption))
+    {
+        <figcaption>@caption</figcaption>
+    }
+</figure>

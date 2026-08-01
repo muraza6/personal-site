@@ -1,0 +1,58 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Extensions
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.Name</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+    <header class="site-header" id="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <partial name="Navigation" model="@((IPublishedContent)Model)" />
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main" id="main-content">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <span>@Model.Root().Name</span>
+                </div>
+                <p class="footer-copyright">&copy; @DateTime.Now.Year @Model.Root().Name</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        const header = document.getElementById('site-header');
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('scrolled', window.scrollY > 20);
+        });
+        // Mobile nav toggle
+        const toggle = document.querySelector('.nav-toggle');
+        const nav = document.querySelector('.site-nav');
+        if (toggle && nav) {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+                nav.classList.toggle('is-open');
+            });
+        }
+    </script>
+</body>
+</html>

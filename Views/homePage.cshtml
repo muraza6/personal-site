@@ -1,0 +1,238 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Extensions
+@using Umbraco.Cms.Core.Models.Blocks
+@using Umbraco.Cms.Core.Models
+@{
+    Layout = "Master.cshtml";
+
+    var name     = Model.HasValue("heroHeading")    ? Model.Value<string>("heroHeading")    : Model.Name;
+    var subtitle = Model.HasValue("heroSubheading") ? Model.Value<string>("heroSubheading") : "Software Developer";
+    var bio      = Model.HasValue("bio")            ? Model.Value<string>("bio")            : "Ich entwickle saubere, performante Web Erlebnisse. Mit Leidenschaft verwandle ich Ideen in elegante digitale Produkte, die Nutzer lieben.";
+
+    // profileImage — Media Picker (MediaWithCrops)
+    var profileImage   = Model.HasValue("profileImage") ? Model.Value<MediaWithCrops>("profileImage") : null;
+    var profileImgUrl  = profileImage?.Url() ?? "";
+
+    // primaryButton / secondaryButton
+    // Multi URL Picker returns IEnumerable<Link>, single URL picker returns Link
+    // Handle both cases safely
+    Link? primaryBtn = null;
+    Link? secondaryBtn = null;
+
+    if (Model.HasValue("primaryButton"))
+    {
+        try { primaryBtn = Model.Value<Link>("primaryButton"); } catch { }
+        if (primaryBtn == null)
+        {
+            try { primaryBtn = Model.Value<IEnumerable<Link>>("primaryButton")?.FirstOrDefault(); } catch { }
+        }
+    }
+
+    if (Model.HasValue("secondaryButton"))
+    {
+        try { secondaryBtn = Model.Value<Link>("secondaryButton"); } catch { }
+        if (secondaryBtn == null)
+        {
+            try { secondaryBtn = Model.Value<IEnumerable<Link>>("secondaryButton")?.FirstOrDefault(); } catch { }
+        }
+    }
+
+    // Projects — published child nodes of type projectItem, newest first
+    var projects = Model.Children
+        .Where(x => x.ContentType.Alias == "projectItem" && x.IsVisible())
+        .OrderByDescending(x => x.CreateDate)
+        .ToList();
+
+    var blogSection = Model.Root().Descendants().FirstOrDefault(x => x.ContentType.Alias == "blogOverview");
+    var latestPosts = blogSection?.Children?
+        .Where(x => x.ContentType.Alias == "blogPost" && x.IsVisible())
+        .OrderByDescending(x => x.HasValue("publicationDate") ? x.Value<DateTime>("publicationDate") : x.CreateDate)
+        .Take(3).ToList();
+}
+
+@* ── Load portfolio styles only on this page ── *@
+<link rel="stylesheet" href="/css/portfolio.css?v=5" />
+
+@* ════════════════════════════════════════════
+   SECTION 1 — HERO
+   ════════════════════════════════════════════ *@
+<section class="p-hero">
+    <div class="p-container p-hero__inner">
+
+        @* Left column *@
+        <div class="p-hero__content">
+            <h3 class="p-hello">Hello<span class="p-accent">.</span></h3>
+
+            <h2 class="p-name">
+                <span class="p-name__line"></span>
+                I'm @name
+            </h2>
+
+            <h1 class="p-role">@subtitle</h1>
+
+            <div class="p-btn-group">
+                <a href="@(primaryBtn?.Url ?? "#contact")"
+                   target="@(primaryBtn?.Target ?? "_self")"
+                   class="p-btn p-btn--primary">@(primaryBtn?.Name ?? "Got a project?")</a>
+                <a href="@(secondaryBtn?.Url ?? "#")"
+                   target="@(secondaryBtn?.Target ?? "_self")"
+                   class="p-btn p-btn--outline">@(secondaryBtn?.Name ?? "My resume")</a>
+            </div>
+        </div>
+
+        @* Right column *@
+        <div class="p-hero__image-wrap">
+            <span class="p-bracket p-bracket--left">&lt;</span>
+            <span class="p-bracket p-bracket--right">&gt;</span>
+            <div class="p-glow-ring"></div>
+            @if (profileImage != null)
+            {
+                <img src="@profileImgUrl" alt="@name" class="p-portrait" />
+            }
+            else
+            {
+                @* Placeholder silhouette when no profileImage is set in backoffice *@
+                <div class="p-portrait p-portrait--placeholder">
+                    <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="100" cy="75" r="45" fill="#2a3140"/>
+                        <ellipse cx="100" cy="175" rx="70" ry="45" fill="#2a3140"/>
+                    </svg>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+@* ════════════════════════════════════════════
+   SECTION 2 — TECH STACK BANNER
+   ════════════════════════════════════════════ *@
+<div class="p-stack-banner">
+    <div class="p-container p-stack-banner__inner">
+        @foreach (var tech in new[]{"HTML5","CSS3","JavaScript","Docker","Java","C","GitHub"})
+        {
+            <span class="p-stack-item">@tech</span>
+        }
+    </div>
+</div>
+
+@* ════════════════════════════════════════════
+   SECTION 3 — ABOUT
+   ════════════════════════════════════════════ *@
+<section class="p-about" id="about">
+    <div class="p-container p-about__inner">
+
+        @* Left — services timeline *@
+        <div class="p-services">
+            <ul class="p-timeline">
+                @foreach (var svc in new[]{
+                    ("🌐", "Website Development"),
+                    ("📱", "App Development"),
+                    ("☁️", "Website Hosting")
+                })
+                {
+                    <li class="p-timeline__item">
+                        <span class="p-timeline__dot"></span>
+                        <span class="p-timeline__icon">@svc.Item1</span>
+                        <span class="p-timeline__label">@svc.Item2</span>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        @* Right — bio & stats *@
+        <div class="p-bio">
+            <h2 class="p-bio__heading">About me</h2>
+            <p class="p-bio__text">@Model.Value("aboutMeText")</p>
+
+            <div class="p-stats">
+                <div class="p-stat">
+                    <span class="p-stat__number">@Model.Value("statOneValue")<span class="p-accent">+</span></span>
+                    <span class="p-stat__label">@Model.Value("statOneLabel")</span>
+                </div>
+                <div class="p-stat">
+                    <span class="p-stat__number">@Model.Value("statTwoValue")<span class="p-accent">%</span></span>
+                    <span class="p-stat__label">@Model.Value("statTwoLabel")</span>
+                </div>
+                <div class="p-stat">
+                    <span class="p-stat__number">@Model.Value("statThreeValue")<span class="p-accent">+</span></span>
+                    <span class="p-stat__label">@Model.Value("statThreeLabel")</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@* ════════════════════════════════════════════
+   SECTION 4 — LATEST BLOG POSTS
+   ════════════════════════════════════════════ *@
+@if (latestPosts != null && latestPosts.Any())
+{
+    <section class="p-posts">
+        <div class="p-container">
+            <h2 class="p-section-title">Latest Posts</h2>
+            <div class="p-cards-grid">
+                @foreach (var post in latestPosts)
+                {
+                    @await Html.PartialAsync("BlogPostCard", post)
+                }
+            </div>
+            @if (blogSection != null)
+            {
+                <a href="@blogSection.Url()" class="p-view-all">View all posts →</a>
+            }
+        </div>
+    </section>
+}
+
+@* ════════════════════════════════════════════
+   SECTION 5 — PROJECTS
+   ════════════════════════════════════════════ *@
+<section class="p-projects-teaser" id="projects">
+    <div class="p-container p-projects-teaser__inner">
+        <h2 class="p-projects-teaser__heading">Projects</h2>
+        <div class="p-scroll-indicator">
+            <span class="p-scroll-indicator__line"></span>
+        </div>
+
+        @if (projects.Any())
+        {
+            <div class="p-cards-grid" style="margin-top: 3rem; width: 100%;">
+                @foreach (var project in projects)
+                {
+                    var projDesc   = project.HasValue("description")  ? project.Value<string>("description")          : "";
+                    var projImg    = project.HasValue("projectImage") ? project.Value<MediaWithCrops>("projectImage") : null;
+                    var projImgUrl = projImg?.Url() ?? "";
+                    var projLink   = project.HasValue("projectLink")  ? project.Value<Link>("projectLink")            : null;
+
+                    <div class="post-card">
+                        <div class="card-image">
+                            @if (projImg != null)
+                            {
+                                <img src="@projImgUrl" alt="@project.Name" loading="lazy" />
+                            }
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">@project.Name</h3>
+                            @if (!string.IsNullOrEmpty(projDesc))
+                            {
+                                <p class="card-excerpt">@projDesc</p>
+                            }
+                            <div class="card-footer">
+                                @if (projLink != null)
+                                {
+                                    <a href="@projLink.Url"
+                                       target="@(projLink.Target ?? "_self")"
+                                       class="read-more">
+                                        @(projLink.Name ?? "View project") <span class="arrow">→</span>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

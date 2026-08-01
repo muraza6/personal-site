@@ -1,0 +1,27 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models.Blocks
+@{
+    Layout = "Master.cshtml";
+    var pageTitle = Model.HasValue("pageTitle") ? Model.Value<string>("pageTitle") : Model.Name;
+}
+
+@* ===== PAGE HEADER ===== *@
+<section class="page-hero">
+    <div class="container">
+        <h1 class="page-title">@pageTitle</h1>
+    </div>
+</section>
+
+@* ===== BLOCK GRID CONTENT ===== *@
+@if (Model.HasValue("mainContent"))
+{
+    var blockGridValue = Model.Value<BlockGridModel>("mainContent");
+    if (blockGridValue != null)
+    {
+        <section class="block-content">
+            <div class="container-narrow">
+                @await Html.GetBlockGridHtmlAsync(blockGridValue)
+            </div>
+        </section>
+    }
+}

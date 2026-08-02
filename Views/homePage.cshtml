@@ -104,12 +104,17 @@
     </div>
 </section>
 
+
 @* ════════════════════════════════════════════
    SECTION 2 — TECH STACK BANNER
    ════════════════════════════════════════════ *@
+@{
+    var rawSkills = Model.Value<string>("skillList") ?? "";    //get the text from Umbraco
+    var techArray = rawSkills.Split(new[] { ',', ' '}, StringSplitOptions.RemoveEmptyEntries);
+}
 <div class="p-stack-banner">
     <div class="p-container p-stack-banner__inner">
-        @foreach (var tech in new[]{"HTML5","CSS3","JavaScript","Docker","Java","C","GitHub"})
+        @foreach (var tech in techArray)
         {
             <span class="p-stack-item">@tech</span>
         }

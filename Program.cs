@@ -1,12 +1,17 @@
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.CreateUmbracoBuilder()
+var umbracoBuilder = builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
     .AddDeliveryApi()
-    .AddComposers()
-    .AddAzureBlobMediaFileSystem()
-    .Build();
+    .AddComposers();
+
+if (!string.IsNullOrWhiteSpace(builder.Configuration["Umbraco:Storage:AzureBlob:Media:ConnectionString"]))
+{
+    umbracoBuilder.AddAzureBlobMediaFileSystem();
+}
+
+umbracoBuilder.Build();
 
 WebApplication app = builder.Build();
 

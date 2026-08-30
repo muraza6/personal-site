@@ -1,7 +1,5 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using Umbraco.Extensions
-@using Umbraco.Cms.Web.Common.Security
-@inject IMemberManager MemberManager
 @if (Model != null)
 {
     var root = Model.Root();
@@ -10,20 +8,8 @@
         .ToList();
     var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
     var availableCultures = new[] { "de", "en-US", "fr-FR" };
-    var isLoggedIn = false;
-    var currentMemberName = "";
-
-    try
-    {
-        isLoggedIn = await MemberManager.IsLoggedInAsync();
-        var currentMember = await MemberManager.GetCurrentMemberAsync();
-        currentMemberName = currentMember?.Name ?? "";
-    }
-    catch
-    {
-        isLoggedIn = false;
-        currentMemberName = "";
-    }
+    var isLoggedIn = User?.Identity?.IsAuthenticated == true;
+    var currentMemberName = User?.Identity?.Name ?? "";
 
     var loginUrl = Url.Action("Login", "Member", new { area = "Umbraco" });
     var logoutUrl = Url.Action("Logout", "Member", new { area = "Umbraco" });

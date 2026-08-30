@@ -1,10 +1,22 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using System.Globalization
 @using Umbraco.Extensions
 @{
     Layout = null;
+    var currentCulture = CultureInfo.CurrentUICulture.Name;
+    var isGerman = currentCulture.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+    var currentPath = Context.Request.Path.Value ?? "/";
+    var languageToggleHref = isGerman
+        ? (currentPath.StartsWith("/de", StringComparison.OrdinalIgnoreCase)
+            ? currentPath.Replace("/de", "/en-us", StringComparison.OrdinalIgnoreCase)
+            : (currentPath == "/" ? "/en-us/" : "/en-us" + currentPath))
+        : (currentPath.StartsWith("/en-us", StringComparison.OrdinalIgnoreCase)
+            ? currentPath.Replace("/en-us", "/de", StringComparison.OrdinalIgnoreCase)
+            : (currentPath == "/" ? "/de/" : "/de" + currentPath));
+    var languageToggleText = isGerman ? "EN" : "DE";
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@currentCulture">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,12 +25,57 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/site.css" />
+    <style>
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 1rem;
+        }
+
+        .site-logo {
+            margin-right: auto;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .site-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        .site-nav a,
+        .site-nav .nav-link {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .nav-toggle {
+            margin-left: 0.5rem;
+        }
+
+        .language-switcher {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.75rem;
+        }
+    </style>
 </head>
 <body>
     <header class="site-header" id="site-header">
         <div class="container">
             <div class="header-inner">
                 <partial name="Navigation" model="@((IPublishedContent)Model)" />
+                <div class="language-switcher">
+                    <a href="@languageToggleHref" style="display:inline-flex; align-items:center; justify-content:center; min-width:42px; padding:0.45rem 0.8rem; border:1px solid rgba(255,255,255,0.35); border-radius:999px; color:#fff; text-decoration:none; font-size:0.75rem; font-weight:700; letter-spacing:0.06em; background:rgba(255,255,255,0.05);">@languageToggleText</a>
+                </div>
             </div>
         </div>
     </header>

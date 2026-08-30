@@ -3,8 +3,11 @@
 @if (Model != null)
 {
     var root = Model.Root();
+    var homeUrl = root.Url() ?? "/";
     var navItems = root.Children.Where(x => x.IsVisible() && x.ContentType.Alias != "projectItem").ToList();
-    <a href="@root.Url()" class="site-logo">
+    var isHomePage = Model.Id == root.Id;
+
+    <a href="@homeUrl" class="site-logo">
         <span class="logo-text">@root.Name</span>
     </a>
     <nav class="site-nav">
@@ -12,6 +15,7 @@
         {
             <a href="@item.Url()" class="nav-link @(Model.IsAncestorOrSelf(item) ? "active" : "")">@item.Name</a>
         }
+        <a href="@($"{homeUrl}#projects")" class="nav-link @(isHomePage ? "active" : "")">Projects</a>
     </nav>
     <button class="nav-toggle" aria-label="Toggle menu">
         <span></span><span></span><span></span>

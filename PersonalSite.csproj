@@ -6,11 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Include Umbraco SQLite DB and Data folder in publish output -->
-    <Content Include="umbraco\Data\**\*" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Umbraco.Cms" Version="13.8.1" />
     <PackageReference Include="Umbraco.StorageProviders.AzureBlob" Version="13.0.0" />
   </ItemGroup>

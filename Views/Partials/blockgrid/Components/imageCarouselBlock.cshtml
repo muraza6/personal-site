@@ -1,0 +1,83 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Extensions
+@{
+    var content = Model.Content;
+    var items = content.Value<IEnumerable<IPublishedElement>>("slides") ?? Enumerable.Empty<IPublishedElement>();
+    var slideList = items.ToList();
+    var blockId = "imageCarousel_" + Guid.NewGuid().ToString("N");
+}
+
+@if (slideList.Any())
+{
+    <div class="block-image-carousel" data-carousel-id="@blockId">
+        <div class="block-image-carousel__viewport">
+            <div class="block-image-carousel__track">
+                @for (var i = 0; i < slideList.Count; i++)
+                {
+                    var slide = slideList[i];
+                    var image = slide.Value<IPublishedContent>("image");
+                    var altText = slide.Value<string>("altText");
+                    var caption = slide.Value<string>("caption");
+
+                    <div class="block-image-carousel__slide @(i == 0 ? "is-active" : string.Empty)">
+                        @if (image != null)
+                        {
+                            <img src="@image.Url()" alt="@(string.IsNullOrWhiteSpace(altText) ? image.Name : altText)" loading="lazy" />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(caption))
+                        {
+                            <div class="block-image-carousel__caption">@caption</div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="block-image-carousel__controls">
+            <div class="block-image-carousel__dots">
+                @for (var i = 0; i < slideList.Count; i++)
+                {
+                    <button type="button" class="block-image-carousel__dot @(i == 0 ? "is-active" : string.Empty)" data-carousel-target="@blockId" data-slide-index="@i" aria-label="Go to slide @(i + 1)"></button>
+                }
+            </div>
+            <div class="block-image-carousel__nav">
+                <button type="button" class="block-image-carousel__button" data-carousel-target="@blockId" data-direction="prev" aria-label="Previous slide">←</button>
+                <button type="button" class="block-image-carousel__button" data-carousel-target="@blockId" data-direction="next" aria-label="Next slide">→</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const carousel = document.querySelector('[data-carousel-id="@blockId"]');
+            if (!carousel) return;
+
+            const slides = Array.from(carousel.querySelectorAll('.block-image-carousel__slide'));
+            const dots = Array.from(carousel.querySelectorAll('.block-image-carousel__dot'));
+            const prevBtn = carousel.querySelector('[data-direction="prev"]');
+            const nextBtn = carousel.querySelector('[data-direction="next"]');
+
+            let currentIndex = 0;
+
+            function showSlide(index) {
+                currentIndex = (index + slides.length) % slides.length;
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('is-active', i === currentIndex);
+                });
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('is-active', i === currentIndex);
+                });
+            }
+
+            prevBtn?.addEventListener('click', () => showSlide(currentIndex - 1));
+            nextBtn?.addEventListener('click', () => showSlide(currentIndex + 1));
+            dots.forEach((dot) => {
+                dot.addEventListener('click', () => {
+                    const targetIndex = Number(dot.dataset.slideIndex || 0);
+                    showSlide(targetIndex);
+                });
+            });
+        })();
+    </script>
+}

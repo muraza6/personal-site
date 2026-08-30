@@ -5,9 +5,15 @@
 @{
     Layout = "Master.cshtml";
 
-    var name     = Model.HasValue("heroHeading")    ? Model.Value<string>("heroHeading")    : Model.Name;
-    var subtitle = Model.HasValue("heroSubheading") ? Model.Value<string>("heroSubheading") : "Software Developer";
-    var bio      = Model.HasValue("bio")            ? Model.Value<string>("bio")            : "Ich entwickle saubere, performante Web Erlebnisse. Mit Leidenschaft verwandle ich Ideen in elegante digitale Produkte, die Nutzer lieben.";
+    var culture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+    var name     = Model.HasValue("heroHeading")    ? Model.Value<string>("heroHeading", culture: culture)    : Model.Name;
+    var subtitle = Model.HasValue("heroSubheading") ? Model.Value<string>("heroSubheading", culture: culture) : (culture.StartsWith("de") ? "Softwareentwickler" : "Software Developer");
+    var bio      = Model.HasValue("bio")            ? Model.Value<string>("bio", culture: culture)            : (culture.StartsWith("de") ? "Ich entwickle saubere, performante Web Erlebnisse. Mit Leidenschaft verwandle ich Ideen in elegante digitale Produkte, die Nutzer lieben." : "I craft clean, high-performance web experiences. With passion, I transform ideas into elegant digital products that users love.");
+
+    var sliderNode = Model.Children.FirstOrDefault(x => x.ContentType.Alias == "slider");
+    var sliderItems = sliderNode != null
+        ? sliderNode.Children.Where(x => x.IsVisible()).OrderBy(x => x.SortOrder).ToList()
+        : new List<IPublishedContent>();
 
     // profileImage — Media Picker (MediaWithCrops)
     var profileImage   = Model.HasValue("profileImage") ? Model.Value<MediaWithCrops>("profileImage") : null;
@@ -52,6 +58,37 @@
 
 @* ── Load portfolio styles only on this page ── *@
 <link rel="stylesheet" href="/css/portfolio.css?v=5" />
+
+@if (sliderNode != null && sliderItems.Any())
+{
+    <section class="home-slider" aria-label="Featured slider">
+        <div class="p-container">
+            <div class="home-slider__track">
+                @foreach (var slide in sliderItems)
+                {
+                    var slideImage = slide.HasValue("image") ? slide.Value<MediaWithCrops>("image") : null;
+                    var slideImageUrl = slideImage?.Url() ?? "";
+                    var slideTitle = slide.HasValue("title") ? slide.Value<string>("title") : slide.Name;
+                    var slideText = slide.HasValue("text") ? slide.Value<string>("text") : "";
+
+                    <article class="home-slider__item">
+                        @if (!string.IsNullOrWhiteSpace(slideImageUrl))
+                        {
+                            <img src="@slideImageUrl" alt="@slideTitle" class="home-slider__image" />
+                        }
+                        <div class="home-slider__content">
+                            <h2>@slideTitle</h2>
+                            @if (!string.IsNullOrWhiteSpace(slideText))
+                            {
+                                <p>@slideText</p>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+}
 
 @* ════════════════════════════════════════════
    SECTION 1 — HERO

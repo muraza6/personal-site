@@ -1,0 +1,35 @@
+{
+  "$schema": "../../umbraco-package-schema.json",
+  "name": "CharLimitEditor",
+  "version": "1.0.0",
+  "extensions": [
+    {
+      "type": "propertyEditorUi",
+      "alias": "My.PropertyEditorUi.CharLimit",
+      "name": "Character Limit Editor",
+      "js": "/App_Plugins/CharLimitEditor/char-limit-editor.js",
+      "meta": {
+        "label": "Character Limit Text",
+        "icon": "icon-font",
+        "group": "Common",
+        "propertyEditorSchemaAlias": "Umbraco.TextBox",
+        "settings": {
+          "properties": [
+            {
+              "alias": "maxChars",
+              "label": "Maximum Characters",
+              "description": "The maximum number of characters a user can enter.",
+              "propertyEditorUiAlias": "Umb.PropertyEditorUi.Integer"
+            }
+          ],
+          "defaultData": [
+            {
+              "alias": "maxChars",
+              "value": 100
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

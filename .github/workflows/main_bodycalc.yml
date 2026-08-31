@@ -55,10 +55,12 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B2B6A55051FD4F909A84B57663088D33 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_973024155CC941198AB81D4D2967E368 }}
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'bodycalc'
-          slot-name: 'Production'
-          package: myapp.zip
+      - name: Stop App Service
+        run: az webapp stop --name bodycalc --resource-group bodycalc_group-b3b6
+
+      - name: Deploy ZIP to Azure Web App
+        run: az webapp deploy --name bodycalc --resource-group bodycalc_group-b3b6 --src-path myapp.zip --type zip --async false
+
+      - name: Start App Service
+        if: always()
+        run: az webapp start --name bodycalc --resource-group bodycalc_group-b3b6

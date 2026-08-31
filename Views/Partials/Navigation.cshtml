@@ -8,11 +8,10 @@
         .ToList();
     var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
     var availableCultures = new[] { "de", "en-US", "fr-FR" };
-    var isLoggedIn = User?.Identity?.IsAuthenticated == true;
-    var currentMemberName = User?.Identity?.Name ?? "";
-
-    var loginUrl = Url.Action("Login", "Member", new { area = "Umbraco" });
-    var logoutUrl = Url.Action("Logout", "Member", new { area = "Umbraco" });
+    var isLoggedIn = User.Identity?.IsAuthenticated ?? false;
+    var currentMemberName = User.Identity?.Name ?? "";
+    var loginUrl = "/umbraco/";
+    var logoutUrl = "/umbraco/logout";
 
     <a href="@root.Url()" class="site-logo">
         <span class="logo-text">@root.Name</span>
